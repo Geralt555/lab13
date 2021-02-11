@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
-# -*- config: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-# Вариант 13. Использовать словарь, содержащий следующие ключи: фамилия, имя; номер телефона;
-# дата рождения. Написать программу, выполняющую следующие
-# действия: ввод с клавиатуры данных в список, состоящий из словарей заданной структуры;
-# записи должны быть упорядочены по трем первым цифрам номера телефона; вывод на
-# экран информации о человеке, чья фамилия введена с клавиатуры; если такого нет, выдать
-# на дисплей соответствующее сообщение.
-
-# Выполнить индивидуальное задание 2 лабораторной работы 9, использовав классы данных, а
-# также загрузку и сохранение данных в формат XML.
+#   Выполнить индивидуальное задание 2 лабораторной работы 9, использовав классы данных, а
+#   также загрузку и сохранение данных в формат XML
 
 from dataclasses import dataclass, field
 import sys
@@ -18,188 +11,179 @@ import xml.etree.ElementTree as ET
 
 
 @dataclass(frozen=True)
-class people:
-    surname: str
+class train:
     name: str
-    number: int
-    year: int
+    num: str
+    time: str
 
 
 @dataclass
 class Staff:
-    peoples: List[people] = field(default_factory=lambda: [])
+    trains: List[train] = field(default_factory=lambda: [])
 
-    def add(self, surname, name, number, year):
-        self.peoples.append(
-            people(
-                surname=surname,
+    def add(self, name, num, time):
+        self.trains.append(
+            train(
                 name=name,
-                number=number,
-                year=year
+                num=num,
+                time=time
             )
         )
 
-        self.peoples.sort(key=lambda people: people.number)
+        self.trains.sort(key=lambda train: train.name)
 
     def __str__(self):
         table = []
-        line = '+-{}-+-{}-+-{}-+-{}-+-{}-+'.format(
+        line = '+-{}-+-{}-+-{}-+-{}-+'.format(
             '-' * 4,
+            '-' * 30,
             '-' * 20,
-            '-' * 20,
-            '-' * 20,
-            '-' * 15
+            '-' * 17
         )
         table.append(line)
         table.append(
-            '| {:^4} | {:^20} | {:^20} | {:^20} | {:^15} |'.format(
+            '| {:^4} | {:^30} | {:^20} | {:^17} |'.format(
                 "№",
-                "Фамилия ",
-                "Имя",
-                "Номер телефона",
-                "Дата рождения"
+                "Пункт назначения",
+                "Номер поезда",
+                "Время отправления"
             )
         )
         table.append(line)
 
-        for idx, people in enumerate(self.peoples, 1):
+        for idx, train in enumerate(self.trains, 1):
             table.append(
-                '| {:>4} | {:<20} | {:<20} | {:<20} | {:>15} |'.format(
+                '| {:>4} | {:<30} | {:<20} | {:>17} |'.format(
                     idx,
-                    people.surname,
-                    people.name,
-                    people.number,
-                    people.year
+                    train.name,
+                    train.num,
+                    train.time
                 )
             )
+
         table.append(line)
 
         return '\n'.join(table)
 
     def select(self):
+
         parts = command.split(' ', maxsplit=2)
-        sur = (parts[1])
 
-        count = 0
+        numbers = int(parts[1])
 
-        for people in self.peoples:
-            if people.get('surname') == sur:
-                count += 1
-                print('Фамилия:', people.surname)
-                print('Имя:', people.name)
-                print('Номер телефона:', people.number)
-                print('Дата рождения:', people.year)
+        c = 0
 
-        if count == 0:
-            print("Таких фамилий нет !")
+        for trainn in self.trains:
+            if trainn.num == numbers:
+                c += 1
+                print('Номер поезда:', trainn.num)
+                print('Пункт назначения:', trainn.name)
+                print('Время отправления:', trainn.time)
 
-        def load(self, filename):
-            with open(filename, 'r', encoding='utf8') as fin:
-                xml = fin.read()
-            parser = ET.XMLParser(encoding="utf8")
-            tree = ET.fromstring(xml, parser=parser)
-            self.peoples = []
+        if c == 0:
+            print("Таких поездов нет!")
 
-            for people_element in tree:
-                surname, name, number, year = None, None, None, None
+    def load(self, filename):
+        with open(filename, 'r', encoding='utf8') as fin:
+            xml = fin.read()
+        parser = ET.XMLParser(encoding="utf8")
+        tree = ET.fromstring(xml, parser=parser)
+        self.trains = []
 
-                for element in people_element:
-                    if element.tag == 'surname':
-                        surname = element.text
-                    elif element.tag == 'name':
-                        name = element.text
-                    elif element.tag == 'number':
-                        number = element.text
-                    elif element.tag == 'year':
-                        year = element.text
+        for train_element in tree:
+            name, num, time = None, None, None
 
-                    if surname is not None and name is not None \
-                            and number is not None and year is not None:
-                        self.peoples.append(
-                            people(
-                                suname=surname,
-                                name=name,
-                                number=number,
-                                year=year
-                            )
+            for element in train_element:
+                if element.tag == 'name':
+                    name = element.text
+                elif element.tag == 'num':
+                    num = element.text
+                elif element.tag == 'time':
+                    time = element.text
+
+                if name is not None and num is not None \
+                        and time is not None:
+                    self.trains.append(
+                        train(
+                            name=name,
+                            num=time,
+                            time=time
                         )
+                    )
 
-        def save(self, filename):
-            root = ET.Element('peoples')
-            for people in self.peoples:
-                people_element = ET.Element('people')
+    def save(self, filename):
+        root = ET.Element('trains')
+        for train in self.trains:
+            train_element = ET.Element('train')
 
-                surname_element = ET.SubElement(people_element, 'surname')
-                surname_element.text = people.surname
+            name_element = ET.SubElement(train_element, 'name')
+            name_element.text = train.name
 
-                name_element = ET.SubElement(people_element, 'name')
-                name_element.text = people.name
+            num_element = ET.SubElement(train_element, 'num')
+            num_element.text = train.num
 
-                number_element = ET.SubElement(people_element, 'number')
-                number_element.text = str(people.number)
+            time_element = ET.SubElement(train_element, 'time')
+            time_element.text = str(train.time)
 
-                year_element = ET.SubElement(people_element, 'year')
-                year_element.text = str(people.year)
+            root.append(train_element)
 
-                root.append(people_element)
-
-            tree = ET.ElementTree(root)
-            with open(filename, 'wb') as fout:
-                tree.write(fout, encoding='utf8', xml_declaration=True)
-
-    if __name__ == '__main__':
-        peoples = []
-        staff = Staff
-        while True:
-            command = input(">>> ").lower()
-            if command == 'exit':
-                break
-
-            elif command == 'add':
-                surname = input("Фамилия ")
-                name = input("Имя ")
-                number = int(input("Номер телефона "))
-                year = input("Дата рождения в формате: дд.мм.гггг ")
-
-                staff.add(surname, name, number, year)
+        tree = ET.ElementTree(root)
+        with open(filename, 'wb') as fout:
+            tree.write(fout, encoding='utf8', xml_declaration=True)
 
 
-            elif command == 'list':
-                print(staff)
+if __name__ == '__main__':
+    trains = []
+    staff = Staff()
+    while True:
+        command = input(">>> ").lower()
+        if command == 'exit':
+            break
 
-            elif command.startswith('select '):
-                parts = command.split(' ', maxsplit=2)
-                sur = (parts[1])
+        elif command == 'add':
+            name = input("Название пункта назначения: ")
+            num = input("Номер поезда: ")
+            time = input("Время отправления: ")
 
-                count = 0
+            staff.add(name, num, time)
 
-                for people in peoples:
-                    if people.get('surname') == sur:
-                        count += 1
-                        print('Фамилия:', people.surname)
-                        print('Имя:', people.name)
-                        print('Номер телефона:', people.number)
-                        print('Дата рождения:', people.year)
+        elif command == 'list':
+            print(staff)
 
-                if count == 0:
-                    print("Таких фамилий нет !")
+        elif command.startswith('select '):
+            parts = command.split(' ', maxsplit=2)
 
-            elif command.startswith('load '):
-                parts = command.split(' ', maxsplit=1)
-                staff.load(parts[1])
+            numbers = int(parts[1])
 
-            elif command.startswith('save '):
-                parts = command.split(' ', maxsplit=1)
-                staff.save(parts[1])
+            c = 0
 
-            elif command == 'help':
-                print("Список команд:\n")
-                print("add - добавить человека;")
-                print("list - вывести список людей;")
-                print("select <фамилия> - запросить информацию по фамилии;")
-                print("load <имя файла> - загрузить данные из файла;")
-                print("save <имя файла> - сохранить данные в файл;")
-                print("help - отобразить справку;")
-                print("exit - завершить работу с программой.")
-            else:
-                print(f"Неизвестная команда {command}", file=sys.stderr)
+            for trainn in trains:
+                if trainn.num == numbers:
+                    c += 1
+                    print('Номер поезда:', trainn.num)
+                    print('Пункт назначения:', trainn.name)
+                    print('Время отправления:', trainn.time)
+
+            if c == 0:
+                print("Таких поездов нет!")
+
+        elif command.startswith('load '):
+            parts = command.split(' ', maxsplit=1)
+            staff.load(parts[1])
+
+        elif command.startswith('save '):
+            parts = command.split(' ', maxsplit=1)
+            staff.save(parts[1])
+
+        elif command == 'help':
+
+            print("Список команд:\n")
+            print("add - добавить поезд;")
+            print("list - вывести список поездов;")
+            print("select <номер поезда> - запросить информацию о выбранном поезде;")
+            print("help - отобразить справку;")
+            print("load <имя файла> - загрузить данные из файла;")
+            print("save <имя файла> - сохранить данные в файл;")
+            print("exit - завершить работу с программой.")
+        else:
+            print(f"Неизвестная команда {command}", file=sys.stderr)
